@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
-// import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { TodosModule } from './todos/todos.module';
 
 @Module({
   imports: [
     UsersModule,
-    // AuthModule,
+    AuthModule,
     SequelizeModule.forRoot({
       dialect: 'mysql',
       host: 'localhost',
@@ -17,6 +18,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
       autoLoadModels: true,
       // synchronize: true, //force schema changes
     }),
+    TodosModule,
   ],
   providers: [],
 })

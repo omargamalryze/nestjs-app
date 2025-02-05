@@ -1,28 +1,37 @@
 import { Injectable } from '@nestjs/common';
-export interface User {
-  userId: number;
-  username: string;
-  password: string;
-}
+import { Users } from './users.model';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[] = [
-    {
-      userId: 1,
-      username: 'test1',
-      password: 'passtest',
-    },
-    {
-      userId: 2,
-      username: 'test2',
-      password: 'passtest',
-    },
-  ];
-  create(user: User) {
-    this.users.push(user);
+  constructor(
+    @InjectModel(Users)
+    private userModel: typeof Users,
+  ) {}
+  async create(createUserDto: CreateUserDto) {
+    const user = await this.userModel.create({
+      username: createUserDto.username,
+      password: createUserDto.password,
+    });
+    return user;
   }
-  findUserByName(username: string) {
-    return this.users.find((obj) => obj['username'] === username);
+  async findAll() {
+    const users = await this.userModel.findAll();
+    return users;
+  }
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.userModel.update(updateUserDto, {
+      where: {
+        id: id,
+      },
+      returning: true,
+    });
+    return user;
+  }
+  async findOne(id: number) {
+    const user = await this.userModel.findByPk(id);
+    return user;
   }
 }

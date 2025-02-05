@@ -27,7 +27,6 @@ export class UsersController {
     @Param('id') userId: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    console.log(updateUserDto, userId);
     const user = await this.userService.update(userId, updateUserDto);
     return user;
   }

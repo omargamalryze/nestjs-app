@@ -16,7 +16,7 @@ import { TodosModule } from './todos/todos.module';
       password: 'root',
       database: 'tamm_db', //schema
       autoLoadModels: true,
-      // synchronize: true, //force schema changes
+      synchronize: true, //force schema changes
     }),
     TodosModule,
   ],

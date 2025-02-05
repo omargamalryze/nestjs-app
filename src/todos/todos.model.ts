@@ -5,7 +5,7 @@ import { Users } from 'src/users/users.model';
 @Table
 export class Todos extends Model {
   @Column
-  name: string;
+  title: string;
   @Column
   description: string;
   @Column

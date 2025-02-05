@@ -1,26 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { Todos } from './todos.model';
 
 @Injectable()
 export class TodosService {
-  create(createTodoDto: CreateTodoDto) {
-    return 'This action adds a new todo';
+  constructor(@InjectModel(Todos) private todosModel: typeof Todos) {}
+  async create(createTodoDto: CreateTodoDto) {
+    return await this.todosModel.create({ ...createTodoDto });
   }
 
-  findAll() {
-    return `This action returns all todos`;
+  async findAll() {
+    return await this.todosModel.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`;
+  async findOne(id: number) {
+    return await this.todosModel.findOne({
+      where: {
+        id,
+        //userId
+      },
+    });
   }
 
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    return `This action updates a #${id} todo`;
+  async update(id: number, updateTodoDto: UpdateTodoDto) {
+    try {
+      return await this.todosModel.update(updateTodoDto, {
+        where: {
+          id,
+          //userId -> users shouldn't update other people notes
+        },
+        returning: true,
+      });
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
+  async remove(id: number) {
+    try {
+      const todo = await this.todosModel.findByPk(id);
+      await todo?.destroy();
+    } catch (err) {
+      console.log(err);
+    }
   }
 }

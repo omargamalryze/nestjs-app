@@ -2,10 +2,12 @@ import {
   AllowNull,
   AutoIncrement,
   Column,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+import { Todos } from 'src/todos/todos.model';
 
 @Table
 export class Users extends Model {
@@ -20,6 +22,10 @@ export class Users extends Model {
 
   @Column
   password: string;
+
+  //OneToMany Relationship
+  @HasMany(() => Todos)
+  todos: Todos[];
 
   //Hook that runs before a user is created or updated
   // @BeforeUpdate

@@ -6,6 +6,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  Unique,
 } from 'sequelize-typescript';
 import { Todos } from 'src/todos/todos.model';
 
@@ -17,6 +18,7 @@ export class Users extends Model {
   @Column
   id: number;
 
+  @Unique(true)
   @Column
   username: string;
 

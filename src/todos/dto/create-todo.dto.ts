@@ -1,6 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { IsBoolean, IsString } from 'class-validator';
+
 export class CreateTodoDto {
-  title: string;
-  description: string;
-  check: boolean;
-  userId: number;
+  @IsString()
+  readonly title: string;
+  @IsString()
+  readonly description: string;
+  @IsBoolean()
+  readonly check: boolean;
 }

@@ -8,6 +8,9 @@ import {
   Delete,
   UseGuards,
   Request,
+  ParseIntPipe,
+  ValidationPipe,
+  UsePipes,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -17,6 +20,7 @@ import { IRequestWithPayload } from '../interfaces/request.interface';
 
 @Controller('todos')
 @UseGuards(AuthGuard)
+@UsePipes(ValidationPipe)
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
@@ -36,14 +40,17 @@ export class TodosController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Request() req: IRequestWithPayload) {
+  findOne(
+    @Param('id', ParseIntPipe) id: string,
+    @Request() req: IRequestWithPayload,
+  ) {
     const userId = req.payload.userId;
     return this.todosService.findOne(+id, userId);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() updateTodoDto: UpdateTodoDto,
     @Request() req: IRequestWithPayload,
   ) {
@@ -52,7 +59,10 @@ export class TodosController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: IRequestWithPayload) {
+  remove(
+    @Param('id', ParseIntPipe) id: string,
+    @Request() req: IRequestWithPayload,
+  ) {
     const { userId } = req.payload;
     return this.todosService.remove(+id, userId);
   }

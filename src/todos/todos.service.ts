@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { InjectModel } from '@nestjs/sequelize';
@@ -16,43 +16,46 @@ export class TodosService {
   }
 
   async findOne(id: number, userId: number) {
-    return await this.todosModel.findOne({
+    const todo = await this.todosModel.findOne({
       where: {
         id,
         userId,
       },
     });
+    if (!todo) {
+      throw new NotFoundException();
+    }
+    return todo;
   }
 
   async update(id: number, userId: number, updateTodoDto: UpdateTodoDto) {
-    try {
-      return await this.todosModel.update(updateTodoDto, {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_affectedRows, numberOfAffected] = await this.todosModel.update(
+      updateTodoDto,
+      {
         where: {
           id,
           userId, //-> users shouldn't update other people notes
         },
         returning: true,
-      });
-    } catch (error) {
-      console.error('Error updating user:', error);
+      },
+    );
+    if (!numberOfAffected) {
+      throw new NotFoundException();
     }
+    return 'Todo was updated!';
   }
 
   async remove(id: number, userId: number) {
-    try {
-      const todo = await this.todosModel.findOne({
-        where: {
-          id,
-          userId,
-        },
-      });
-      if (todo) {
-        await todo.destroy();
-      } else {
-        return { success: false, message: 'no such todo ' };
-      }
-    } catch (err) {
-      console.log(err);
+    const todo = await this.todosModel.findOne({
+      where: {
+        id,
+        userId,
+      },
+    });
+    if (!todo) {
+      throw new NotFoundException();
     }
+    await todo.destroy();
   }
 }

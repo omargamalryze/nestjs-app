@@ -11,6 +11,8 @@ import {
   ParseIntPipe,
   ValidationPipe,
   UsePipes,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -59,6 +61,7 @@ export class TodosController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(
     @Param('id', ParseIntPipe) id: string,
     @Request() req: IRequestWithPayload,

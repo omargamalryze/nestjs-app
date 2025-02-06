@@ -6,14 +6,17 @@ import { UpdateUserDto } from './dtos/update-user.dto';
 import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
+  readonly salt = 10; //should be in dotenv
+  readonly pepper = 'secret_pepper'; //should be in dotenv
   constructor(
     @InjectModel(Users)
     private userModel: typeof Users,
   ) {}
   async create(createUserDto: CreateUserDto) {
-    const salt = 10; //should be in dotenv
-    const pepper = 'secret_pepper'; //should be in dotenv
-    const password = await bcrypt.hash(pepper + createUserDto.password, salt);
+    const password = await bcrypt.hash(
+      this.pepper + createUserDto.password,
+      this.salt,
+    );
     const user = await this.userModel.create({
       username: createUserDto.username,
       password,
@@ -29,12 +32,19 @@ export class UsersService {
     return user;
   }
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userModel.update(updateUserDto, {
-      where: {
-        id: id,
+    const password = await bcrypt.hash(
+      this.pepper + updateUserDto.password,
+      this.salt,
+    );
+    const user = await this.userModel.update(
+      { ...updateUserDto, password },
+      {
+        where: {
+          id: id,
+        },
+        returning: true,
       },
-      returning: true,
-    });
+    );
     return user;
   }
   async findOne(id: number) {

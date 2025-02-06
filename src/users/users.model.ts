@@ -18,7 +18,7 @@ export class Users extends Model {
   @Column
   id: number;
 
-  @Unique(true)
+  @Unique
   @Column
   username: string;
 

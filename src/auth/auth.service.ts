@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 
 export type AuthInput = { username: string; password: string };
@@ -19,13 +20,24 @@ export class AuthService {
   }
   async validateUser(input: AuthInput) {
     const user = await this.usersService.findByName(input.username);
-    if (user && user.password == input.password) {
+    if (user && (await this.comparePassword(input.password, user.password))) {
       return {
         userId: user.id,
         username: user.username,
       };
     }
     return null;
+  }
+  async comparePassword(
+    inputPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    const pepper = 'secret_pepper'; //should be in dotenv
+    const isValid = await bcrypt.compare(
+      pepper + inputPassword,
+      hashedPassword,
+    );
+    return isValid;
   }
   async generateAccessToken(payload: Payload) {
     const accessToken = await this.jwtService.signAsync(payload);

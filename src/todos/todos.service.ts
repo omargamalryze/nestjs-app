@@ -7,29 +7,29 @@ import { Todos } from './todos.model';
 @Injectable()
 export class TodosService {
   constructor(@InjectModel(Todos) private todosModel: typeof Todos) {}
-  async create(createTodoDto: CreateTodoDto) {
-    return await this.todosModel.create({ ...createTodoDto });
+  async create(createTodoDto: CreateTodoDto, userId: number) {
+    return await this.todosModel.create({ ...createTodoDto, userId });
   }
 
-  async findAll() {
-    return await this.todosModel.findAll();
+  async findAll(userId: number) {
+    return await this.todosModel.findAll({ where: { userId } });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, userId: number) {
     return await this.todosModel.findOne({
       where: {
         id,
-        //userId
+        userId,
       },
     });
   }
 
-  async update(id: number, updateTodoDto: UpdateTodoDto) {
+  async update(id: number, userId: number, updateTodoDto: UpdateTodoDto) {
     try {
       return await this.todosModel.update(updateTodoDto, {
         where: {
           id,
-          //userId -> users shouldn't update other people notes
+          userId, //-> users shouldn't update other people notes
         },
         returning: true,
       });
@@ -38,10 +38,19 @@ export class TodosService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, userId: number) {
     try {
-      const todo = await this.todosModel.findByPk(id);
-      await todo?.destroy();
+      const todo = await this.todosModel.findOne({
+        where: {
+          id,
+          userId,
+        },
+      });
+      if (todo) {
+        await todo.destroy();
+      } else {
+        return { success: false, message: 'no such todo ' };
+      }
     } catch (err) {
       console.log(err);
     }

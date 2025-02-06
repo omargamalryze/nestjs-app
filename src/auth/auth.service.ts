@@ -14,7 +14,7 @@ export class AuthService {
   async authenticate(input: AuthInput) {
     const user = await this.validateUser(input);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid username or password');
     }
     return this.generateAccessToken(user);
   }

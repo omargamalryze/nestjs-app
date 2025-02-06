@@ -14,11 +14,7 @@ export class UsersService {
   ) {}
   async create(createUserDto: CreateUserDto) {
     //User already exists exception
-    if (
-      await this.userModel.findOne({
-        where: { username: createUserDto.username },
-      })
-    ) {
+    if (await this.findByName(createUserDto.username)) {
       throw new ConflictException('User already exist');
     }
     const password = await bcrypt.hash(
